@@ -11,18 +11,27 @@ bitshares/prestashop-plugin
 + PHP 5+
 + Curl PHP Extension
 
+# Installation
+
+1. Copy these files into your prestashop root directory
+2. Copy Bitshares Checkout (https://github.com/sidhujag/bitsharescheckout) files into your prestashop root directory, overwrite any existing files.
+
 # Configuration
 
 <strong>For Prestashop versions 1.5 and older:</strong><br />
 1. Upload files to the root directory of your PrestaShop installation.<br />
 2. Go to your PrestaShop administration. Modules -> Payments & Gateways -> "Bitshares" click [Install]<br />
 3. Go to your PrestaShop administration. Modules -> Payments & Gateways -> "Bitshares" click [Configure]<br />
+4. Fill out config.php with appropriate information and configure Bitshares Checkout
+    - See the readme at https://github.com/sidhujag/bitsharescheckout
 
 
 <strong>For Prestashop versions 1.6 and newer:</strong><br />
 1. Upload files to the root directory of your PrestaShop installation.<br />
 2. Go to your PrestaShop administration. Modules -> "Bitshares" click [Install]<br />
 3. Go to your PrestaShop administration. Modules -> "Bitshares" click [Configure]<br />
+4. Fill out config.php with appropriate information and configure Bitshares Checkout
+    - See the readme at https://github.com/sidhujag/bitsharescheckout
 
 
 
