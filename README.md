@@ -22,7 +22,7 @@ bitshares/prestashop-plugin
 1. Upload files to the root directory of your PrestaShop installation.<br />
 2. Go to your PrestaShop administration. Modules -> Payments & Gateways -> "Bitshares" click [Install]<br />
 3. Go to your PrestaShop administration. Modules -> Payments & Gateways -> "Bitshares" click [Configure]<br />
-4. Fill out config.php with appropriate information and configure Bitshares Checkout
+4. Fill out config.php with appropriate information and configure Bitshares Checkout<br />
     - See the readme at https://github.com/sidhujag/bitsharescheckout
 
 
@@ -30,9 +30,13 @@ bitshares/prestashop-plugin
 1. Upload files to the root directory of your PrestaShop installation.<br />
 2. Go to your PrestaShop administration. Modules -> "Bitshares" click [Install]<br />
 3. Go to your PrestaShop administration. Modules -> "Bitshares" click [Configure]<br />
-4. Fill out config.php with appropriate information and configure Bitshares Checkout
+4. Fill out config.php with appropriate information and configure Bitshares Checkout<br />
     - See the readme at https://github.com/sidhujag/bitsharescheckout
 
+
+Usage
+-----
+When a shopper chooses the Bitshares payment method, they will be redirected to Bitshares Checkout where they will pay an invoice.  Bitshares Checkout will then notify your system that the order was paid for.  The customer will be redirected back to your store.  
 
 
 # Support
