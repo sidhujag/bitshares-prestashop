@@ -27,8 +27,7 @@ function getOpenOrdersUser()
 }
 function isOrderCompleteUser($memo, $order_id)
 {
-	global $accountName;
-	global $hashSalt;
+
   // find orders with id order_id and status id (completed)
     $Bitshares = new Bitshares();
 	$order = $Bitshares->getCompleteOrder($order_id);
@@ -39,7 +38,7 @@ function isOrderCompleteUser($memo, $order_id)
 			$currency = Currency::getCurrencyInstance((int)$order['id_currency']);
 			$asset = btsCurrencyToAsset($currency->iso_code);
 			$id = $order['cart_id'];
-			$hash =  btsCreateEHASH($accountName,$id, $total, $asset, $hashSalt);
+			$hash =  btsCreateEHASH(accountName,$id, $total, $asset, hashSalt);
 			$memoSanity = btsCreateMemo($hash);		
 			if($memoSanity === $memo)
 			{	
@@ -50,8 +49,7 @@ function isOrderCompleteUser($memo, $order_id)
 }
 function doesOrderExistUser($memo, $order_id)
 {
-	global $accountName;
-	global $hashSalt;
+
   // find orders with id order_id and status id (not paid)
     $Bitshares = new Bitshares();
 	$order = $Bitshares->getOpenOrder($order_id);
@@ -63,7 +61,7 @@ function doesOrderExistUser($memo, $order_id)
 			$currency = Currency::getCurrencyInstance((int)$order['id_currency']);
 			$asset = btsCurrencyToAsset($currency->iso_code);
 			$id = $order['cart_id'];
-			$hash =  btsCreateEHASH($accountName,$id, $total, $asset, $hashSalt);
+			$hash =  btsCreateEHASH(accountName,$id, $total, $asset, hashSalt);
 			$memoSanity = btsCreateMemo($hash);
 			if($memoSanity === $memo)
 			{	
@@ -80,7 +78,7 @@ function doesOrderExistUser($memo, $order_id)
 
 function completeOrderUser($order)
 {
-	global $baseURL;
+	
 	$response = array();
 	$Bitshares = new Bitshares();
     if (empty(Context::getContext()->link))
@@ -110,7 +108,7 @@ function completeOrderUser($order)
 }
 function cancelOrderUser($order)
 {
-	global $baseURL;
+	
 	$response = array();
 	$Bitshares = new Bitshares();
     if (empty(Context::getContext()->link))
@@ -147,16 +145,13 @@ function cronJobUser()
 function createOrderUser()
 {
 
-	global $accountName;
-	global $hashSalt;
-	
 	$order_id    = $_REQUEST['order_id'];
 	$asset = btsCurrencyToAsset($_REQUEST['code']);
 	$total = number_format((float)$_REQUEST['total'],2);
-	$hash =  btsCreateEHASH($accountName,$order_id, $total, $asset, $hashSalt);
+	$hash =  btsCreateEHASH(accountName,$order_id, $total, $asset, hashSalt);
 	$memo = btsCreateMemo($hash);
 	$ret = array(
-		'accountName'     => $accountName,
+		'accountName'     => accountName,
 		'order_id'     => $order_id,
 		'memo'     => $memo
 	);
