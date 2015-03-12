@@ -3,7 +3,7 @@
 		
 require 'config.php';
 require ROOT.'../config/config.inc.php';
-
+require 'BTSMailAlert.php';
 require ROOT.'../modules/bitshares/bitshares.php';
 
 function getOpenOrdersUser()
@@ -11,16 +11,24 @@ function getOpenOrdersUser()
 
 	$openOrderList = array();
 	// find open orders status id (not paid)
-    $Bitshares = new Bitshares();
+  $Bitshares = new Bitshares();
 	$orders = $Bitshares->getOpenOrders();
 	foreach ($orders as $order) {
 		$newOrder = array();
+    $id = $order['cart_id'];
+		$currency = Currency::getCurrencyInstance((int)$order['id_currency']);
+		$asset = btsCurrencyToAsset($currency->iso_code); 
 		$total = $order['total'];
 		$total = number_format((float)$total,2);
-		$newOrder['total'] = $total;
-		$newOrder['currency_code'] = $currency->iso_code;
-		$newOrder['order_id'] = $order['cart_id'];
+  	$hash =  btsCreateEHASH(accountName,$id, $total, $asset, hashSalt);
+		$memo = btsCreateMemo($hash);    
+    
+		$newOrder['total'] = $total;   
+		$newOrder['asset'] = $asset;
+		$newOrder['order_id'] = $id;
+    $newOrder['memo'] = $memo;
 		$newOrder['date_added'] = 0;
+	
 		array_push($openOrderList,$newOrder);
 	}
 	return $openOrderList;
@@ -29,7 +37,7 @@ function isOrderCompleteUser($memo, $order_id)
 {
 
   // find orders with id order_id and status id (completed)
-    $Bitshares = new Bitshares();
+  $Bitshares = new Bitshares();
 	$order = $Bitshares->getCompleteOrder($order_id);
 	if($order != 0)
 	{
@@ -47,11 +55,12 @@ function isOrderCompleteUser($memo, $order_id)
 	}
 	return FALSE;	
 }
+
 function doesOrderExistUser($memo, $order_id)
 {
 
   // find orders with id order_id and status id (not paid)
-    $Bitshares = new Bitshares();
+  $Bitshares = new Bitshares();
 	$order = $Bitshares->getOpenOrder($order_id);
 	
 	if($order != 0)
@@ -69,7 +78,18 @@ function doesOrderExistUser($memo, $order_id)
 				$myorder['order_id'] = $id;
 				$myorder['total'] = $total;
 				$myorder['asset'] = $asset;
-				$myorder['memo'] = $memo;	
+				$myorder['memo'] = $memo;
+        if(orderExpiresIn15Minutes === "1" || orderExpiresIn15Minutes === 1 || orderExpiresIn15Minutes === 'TRUE' || orderExpiresIn15Minutes === TRUE || orderExpiresIn15Minutes === "true")
+        {
+          $dateNowObj = new DateTime(null);
+          $dateNow = $dateNowObj->getTimestamp();
+          $dateAdd = new DateTime($order['date_add']);
+          if($dateAdd)
+          {
+            $dateExpiry = $dateAdd->getTimestamp() + date('Z') + 15*60; 
+            $myorder['countdown_time'] = ($dateExpiry  - $dateNow);
+          } 
+        }
 				return $myorder;
 			}
 	}
@@ -86,7 +106,7 @@ function completeOrderUser($order)
     $porder = new Order((int)Order::getOrderByCartId($order['order_id']));
     if($porder == 0)
     {
-		$response['error'] = 'Could not find this order in the system, please review the Order ID and Memo';
+		  $response['error'] = 'Could not find this order in the system, please review the Order ID and Memo. You may get this message if you have already paid/cancelled this order.';
     }
     $new_history = new OrderHistory();
     $new_history->id_order = (int)$porder->id;
@@ -98,18 +118,19 @@ function completeOrderUser($order)
 	$url = $Bitshares->getReturnURL($order['order_id']);
 	if($url === "")
 	{
-		$response['error'] = 'Could not find this order in the system, please review the Order ID and Memo';
+		$response['error'] = 'Could not find this order in the system, please review the Order ID and Memo. You may get this message if you have already paid/cancelled this order.';
 	}
 	else
 	{
 		$response['url'] = $Bitshares->getReturnURL($order['order_id']);
+    BTSMailAlert::actionPaymentConfirmation(Order::getOrderByCartId($order['order_id']), vendorEmails);
 	} 	 
 	return $response;
 }
 function cancelOrderUser($order)
 {
-	
 	$response = array();
+  
 	$Bitshares = new Bitshares();
     if (empty(Context::getContext()->link))
       Context::getContext()->link = new Link(); // workaround a prestashop bug so email is sent 	
@@ -129,7 +150,7 @@ function cancelOrderUser($order)
 	$url = $Bitshares->getReturnURL($order['order_id']);
 	if($url === "")
 	{
-		$response['error'] = 'Could not find this order in the system, please review the Order ID and Memo';
+		$response['error'] = 'Could not find this order in the system, please review the Order ID and Memo. You may get this message if you have already paid/cancelled this order.';
 	}
 	else
 	{

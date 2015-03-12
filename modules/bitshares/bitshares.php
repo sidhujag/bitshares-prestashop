@@ -67,7 +67,7 @@ class Bitshares extends PaymentModule {
       $this->page = basename(__FILE__, '.php');
       $this->displayName      = $this->l('Bitshares');
       $this->description      = $this->l('Accepts Bitshares payments.');
-      $this->confirmUninstall = $this->l('Are you sure you want to uninstall?');
+      $this->confirmUninstall = $this->l('This will clear your Bitshares order history, are you sure you want to uninstall?');
 
       // Backward compatibility
       require(_PS_MODULE_DIR_ . 'bitshares/backward_compatibility/backward.php');
@@ -89,25 +89,38 @@ class Bitshares extends PaymentModule {
 
       $db = Db::getInstance();
 
-      $query = "CREATE TABLE `"._DB_PREFIX_."order_bitshares` (
+      $query = "CREATE TABLE IF NOT EXISTS `"._DB_PREFIX_."order_bitshares` (
                 `id_payment` int(11) NOT NULL AUTO_INCREMENT,
                 `id_currency` int(11) NOT NULL,
                 `total` decimal(20,6) NOT NULL,
                 `cart_id` int(11) NOT NULL,
                 `invoice_id` varchar(255) NOT NULL,
                 `status` int(11) NOT NULL,
+                `date_add` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (`id_payment`),
                 UNIQUE KEY `cart_id` (`cart_id`)
                 ) ENGINE="._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8';
+      $result = $db->Execute($query);
 
-      $db->Execute($query);
+      if(!$result)
+      {
+        $this->_errors[] = $this->l('Sorry, could not create order_bitshares table in server mysql database.  Please ask your web hosting provider for assistance.');
+        return false;      
+      }
       $query = "INSERT IGNORE INTO `ps_configuration` (`name`, `value`, `date_add`, `date_upd`) VALUES ('PS_OS_BITSHARES', '13', NOW(), NOW());";
-      $db->Execute($query);
-
+      $result = $db->Execute($query);
+      if(!$result)
+      {
+        $this->_errors[] = $this->l('Sorry, could not update ps_configuration table in server mysql database.  Please ask your web hosting provider for assistance.');
+        return false;      
+      }
       return true;
     }
 
     public function uninstall() {
+      $db = Db::getInstance();
+      $query = "DROP TABLE `"._DB_PREFIX_."order_bitshares`";
+      $db->Execute($query);
 
       return parent::uninstall();
     }
