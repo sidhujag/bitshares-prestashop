@@ -81,12 +81,15 @@ function doesOrderExistUser($memo, $order_id)
 				$myorder['memo'] = $memo;
         if(orderExpiresIn15Minutes === "1" || orderExpiresIn15Minutes === 1 || orderExpiresIn15Minutes === 'TRUE' || orderExpiresIn15Minutes === TRUE || orderExpiresIn15Minutes === "true")
         {
+	  $defTimezone = date_default_timezone_get();
+	  date_default_timezone_set("UTC");
           $dateNowObj = new DateTime(null);
           $dateNow = $dateNowObj->getTimestamp();
           $dateAdd = new DateTime($order['date_add']);
+	  date_default_timezone_set($defTimezone) ; 	
           if($dateAdd)
           {
-            $dateExpiry = $dateAdd->getTimestamp() + date('Z') + 15*60; 
+            $dateExpiry = $dateAdd->getTimestamp() - date('Z') + 15*60; 
             $myorder['countdown_time'] = ($dateExpiry  - $dateNow);
           } 
         }
