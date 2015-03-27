@@ -10,4 +10,5 @@ define('hashSalt', 'prestademo');
 define('cronToken', 'asdfsddf3dddf43');
 define('vendorEmails', 'sidhujag@hotmail.com, jagdeep.sidhu@alpha.ca');
 define('orderExpiresIn15Minutes', 'TRUE');
+define('acceptedAssets', 'GOLD, SILVER');
 ?>
