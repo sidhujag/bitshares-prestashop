@@ -27,7 +27,7 @@ function getOpenOrdersUser()
 		$newOrder['asset'] = $asset;
 		$newOrder['order_id'] = $id;
     $newOrder['memo'] = $memo;
-		$newOrder['date_added'] = 0;
+		$newOrder['date_added'] = $order['date_add'];
 	
 		array_push($openOrderList,$newOrder);
 	}
@@ -79,20 +79,7 @@ function doesOrderExistUser($memo, $order_id)
 				$myorder['total'] = $total;
 				$myorder['asset'] = $asset;
 				$myorder['memo'] = $memo;
-        if(orderExpiresIn15Minutes === "1" || orderExpiresIn15Minutes === 1 || orderExpiresIn15Minutes === 'TRUE' || orderExpiresIn15Minutes === TRUE || orderExpiresIn15Minutes === "true")
-        {
-	  $defTimezone = date_default_timezone_get();
-	  date_default_timezone_set("UTC");
-          $dateNowObj = new DateTime(null);
-          $dateNow = $dateNowObj->getTimestamp();
-          $dateAdd = new DateTime($order['date_add']);
-	  date_default_timezone_set($defTimezone) ; 	
-          if($dateAdd)
-          {
-            $dateExpiry = $dateAdd->getTimestamp() - date('Z') + 15*60; 
-            $myorder['countdown_time'] = ($dateExpiry  - $dateNow);
-          } 
-        }
+        $myorder['date_added'] = $order['date_add'];
 				return $myorder;
 			}
 	}
